@@ -1,52 +1,122 @@
 const CategoriaModel = require('../models/categoriaModel');
 
 const categoriaController = {
-    criarCategoria: async (req,res) => {
-        const { codigo,descricao} = req.body;
-        // validação simples dos campos obrigatórios
-        if(!codigo || !descricao){
-            return res.status(400).json({
-                sucesso:false,
-                mensagem:"Todos os campos(código, nome, quantidade, preco) são obrigatórios"
+       criarCategoria: async (req, res) => {
+        try {
+            const { codigo, descricao } = req.body;
+
+            if (!codigo || !descricao) {
+                return res.status(400).json({
+                    sucesso: false,
+                    mensagem: "Os campos codigo e descricao são obrigatórios!"
+                });
+            }
+
+            const codigoConvertido = Number(codigo);
+            const descricaoMaiuscula = String(descricao).toUpperCase();
+
+            const novaCategoria = await CategoriaModel.create({
+                data: {
+                    codigo: codigoConvertido,
+                    descricao: descricaoMaiuscula
+                }
+            });
+
+            return res.status(201).json({
+                sucesso: true,
+                categoria: novaCategoria
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                sucesso: false,
+                erro: error.message
             });
         }
-
-         // transformar a calcular os dados
-         const codigoNumero = Number(codigo)
-         const descricaoMaiscula = String(descricao).toUpperCase();
-        
-
-    const novoCategoria = await CategoriaModel.create({
-        data: {
-        codigo: codigoNumero,
-        descricao: descricaoMaiscula
-        }
-    });
-
-    // retorna a resposta http 201 (created)
-    return res.status(201).json({
-        sucesso:true, 
-        mensagem: "Produto cadastrado com sucesso!",
-        produto: novoCategoria
-    });
     },
 
-        listarCategoria: async (req,res) => {
+    // Listar categorias
+    listarCategoria: async (req, res) => {
         try {
+            const categoria = await CategoriaModel.findMany();
 
-            const categorias = await CategoriaModel.findMany();
             return res.status(200).json({
                 sucesso: true,
-                categorias
+                categoria
             });
+
         } catch (error) {
-            return res.status(500).json({sucesso: false,erro: error.message})
+            return res.status(500).json({
+                sucesso: false,
+                erro: error.message
+            });
         }
-        
+    },
+
+    // Atualizar categoria
+    atualizarCategoria: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { descricao } = req.body;
+
+            if (!descricao) {
+                return res.status(400).json({
+                    sucesso: false,
+                    mensagem: "O campo descricao é obrigatório!"
+                });
+            }
+
+            const idConvertido = Number(codigo);
+            const descricaoMaiuscula = String(descricao).toUpperCase();
+
+            const categoriaAtualizada = await CategoriaModel.update({
+                where: {
+                    id: idConvertido
+                },
+                data: {
+                    descricao: descricaoMaiuscula
+                }
+            });
+
+            return res.status(200).json({
+                sucesso: true,
+                mensagem: "Categoria atualizada com sucesso!",
+                categoria: categoriaAtualizada
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                sucesso: false,
+                erro: error.message
+            });
         }
-    };
+    },
 
+    // Deletar categoria
+    deletarCategoria: async (req, res) => {
+        try {
+            const { id } = req.params;
 
+            const categoriaDeletada = await CategoriaModel.delete({
+                where: {
+                    id: Number(id)
+                }
+            });
 
+            return res.status(200).json({
+                sucesso: true,
+                mensagem: "Categoria excluída com sucesso!",
+                categoria: categoriaDeletada
+            });
+
+        } catch (error) {
+            return res.status(500).json({
+                sucesso: false,
+                erro: error.message
+            });
+        }
+    }
+
+};
 
 module.exports = categoriaController;

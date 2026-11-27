@@ -8,6 +8,9 @@ router.post('/novo', categoriaController.criarCategoria);
 router.get('/listar', categoriaController.listarCategoria); // post sempre cria 
 // models, modelo de armazenamento --- representação das tabelas
 // controller controla as regras de armazenamento
-router.get('/', categoriaController.listarCategoria);
+
+
+router.put('/atualizar/:codigo', categoriaController.atualizarCategoria);
+router.delete('/excluir/:id', categoriaController.deletarCategoria);
 
 module.exports = router;
